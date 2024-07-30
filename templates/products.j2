@@ -1,0 +1,188 @@
+<html>
+<!-- Adapted from the people.html UI design -->
+<head>
+	<title>Products</title>
+
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+	<link href="style.css" rel="stylesheet" type="text/css" />
+	<script language="JavaScript">
+	function showform(dowhat) {
+		/*
+		 * four DIVS: browse, insert, update, delete
+		 * this function sets one visible the others not
+		 */
+		if(dowhat == 'insert') {
+			document.getElementById('browse').style.display = 'none';
+			document.getElementById('insert').style.display = 'block';
+			document.getElementById('edit').style.display = 'none';
+			document.getElementById('delete').style.display = 'none';
+		} else if(dowhat == 'update') {
+			document.getElementById('browse').style.display = 'none';
+			document.getElementById('insert').style.display = 'none';
+			document.getElementById('edit').style.display = 'block';
+			document.getElementById('delete').style.display = 'none';
+		} else if(dowhat == 'delete') {
+			document.getElementById('browse').style.display = 'none';
+			document.getElementById('insert').style.display = 'none';
+			document.getElementById('edit').style.display = 'none';
+			document.getElementById('delete').style.display = 'block';
+		} else if(dowhat == 'all') {
+			document.getElementById('browse').style.display = 'block';
+			document.getElementById('insert').style.display = 'block';
+			document.getElementById('edit').style.display = 'block';
+			document.getElementById('delete').style.display = 'block';
+		} else { //by default display browse
+			document.getElementById('browse').style.display = 'block';
+			document.getElementById('insert').style.display = 'none';
+			document.getElementById('edit').style.display = 'none';
+			document.getElementById('delete').style.display = 'none';
+		}
+	}
+
+	function newProduct() {
+		showform('insert');
+	}
+
+	function updateProduct(product_id) {
+		showform('update');
+	}
+
+	function deleteProduct(product_id) {
+		showform('delete');
+	}
+
+	function browseProducts() {
+		showform('browse');
+	}
+
+	function showAll() {
+		showform('all');
+	}
+	</script>
+</head>
+<body onload="browseProducts()">
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Techs for You</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a href="/">HOME</a>&emsp;
+      </li>
+      <li class="nav-item">
+        <a href="/customers">CUSTOMERS</a>&emsp;
+      </li>
+      <li class="nav-item active">
+        <a href="/products">PRODUCTS</a>&emsp;
+      </li>
+	   <li class="nav-item">
+        <a href="/invoices">INVOICES</a>&emsp;
+      </li>
+	   <li class="nav-item">
+       <a href="/manufacturers">MANUFACTURERS</a>&emsp;
+      </li>
+	   <li class="nav-item">
+        <a href="/sales">SALES</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+	<div id="browse" style="padding:10;">
+	<div style="padding-top: 7px; padding-bottom: 7px;">
+	<h1 >Products</h1> <a class="btn btn-primary" href="#" onClick="newProduct()">Add New</a>
+	</div>
+		<table class="table table-striped">
+            <!-- Access data tuple passed from app.py --> 
+            {% if data %}
+			    <thead>
+				    <tr>
+					    <!-- Iterate through each key in the first entry to get the column name -->
+                        {% for key in data[0].keys() %}
+					    
+                        <!-- Create a <th> tag with the key inside of it, this will be our header row -->
+					    <th scope="col" data-field="{{ key }}" data-filter-control="input">{{ key }}</th>
+					
+                        <!-- End of this for loop -->
+                        {% endfor %} 
+                    </tr>
+
+				<tbody>
+					<!-- Now, iterate through every item in data -->{% for item in data %}
+					    <tr>
+						    <!-- Then iterate through every key in the current item dictionary -->
+                            {% for key in item.keys() %}
+
+						    <!-- Create a <td> element with the value of that key in it -->
+						    <td> {{item[key]}} </td> 
+                            {% endfor %}
+
+                            <!-- Create our edit/delete buttons -->
+						    <td><a href="edit_product/{{item.product_id}}" class="btn btn-default">Edit</a></td>
+						    <td><a href="delete_product/{{item.product_id}}" class="btn btn-default">Delete</a></td>
+
+					    </tr> 
+                        {% endfor %} 
+                {% endif %} 
+        </table>   
+	<p>&nbsp;</p>
+	</div>	<!-- browse -->
+
+	<div id="insert">
+		<!-- form to INSERT new data into bsg_people-->
+		<form id="insertProduct" action="/products" method="post">
+			<legend><strong>Add Product</strong></legend>
+			<fieldset>
+                <!-- placeholder shows ghost text, required forces an input, pattern forces input adherence -->
+				<label for="make">product name:</label>
+				<input type="text" class="form-control" id="product_name" name="product_name" placeholder="" required>
+
+				<label for="model">product price:</label>
+				<input type="text" class="form-control" id="product_price" name="product_price" placeholder="" required>
+
+				<label>manufacturer id:</label>
+					<select name="manufacturer_id" id="manufacturer_id">
+                        <!-- Access our plans tuple passed from app.py -->
+                        {% for id in manufacturer_data %}
+                            <option value="{{id['manufacturer_id']}}"> {{ id['manufacturer_id']}} </option>
+                        {% endfor %}
+					</select>
+            </fieldset>
+
+            <!-- Create 'Add Product' and 'Cancel' buttons -->
+			<input type="submit" value="Add Product" name="Add_Product" class="btn btn-primary" style="margin:.5rem;">
+			<input class="btn" type="button" value="Cancel" onClick="browseProducts()"> 
+        </form>
+	</div><!--insert-->
+	<div id="edit">
+		<!-- form to edit data in bsg_people-->
+		<form id="editProduct" action="/edit_product/{data[0].product_id}}" method="post">
+			<legend><strong>Edit Product</strong></legend>
+			<fieldset>
+				<input type="hidden" value="{{data[0].product_id}}" class="form-control" id="product_id" name="product_id" required>
+				<label for="product_name">product name:</label>
+
+				<input type="text" class="form-control" id="product_name" name="product_name" placeholder="{{data[0].product_name}}" required>
+				<label for="product_price">product price:</label>
+
+				<input type="text" class="form-control" id="product_price" name="date_created" placeholder="{{data[0].product_price}}" required>
+				<label for="manufacturer_name">manufacturer_name:</label>
+
+				<input type="text" class="form-control" id="manufacturer_name" name="manufacturer_name"  placeholder="{{manufacturer_data[0].manufacturer_name}}" required>
+
+				<input class="btn" type="button" value="Cancel" onClick="browsePeople()" style="margin:.5rem;"> 
+        </form>
+	</div><!--edit-->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
+
